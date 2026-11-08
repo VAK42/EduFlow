@@ -48,8 +48,6 @@ public class CatalogService : BaseService, ICatalogService
     room.Capacity = input.Capacity;
     room.IsActive = input.IsActive;
     await db.SaveChangesAsync();
-    Audit(db, input.Id == 0 ? "Room.Create" : "Room.Update", "Room", room.Id, room.Name);
-    await db.SaveChangesAsync();
     return room;
   }
   public async Task DeleteRoomAsync(int roomId)
@@ -61,7 +59,6 @@ public class CatalogService : BaseService, ICatalogService
     if (await db.Classes.AnyAsync(c => c.PhysicalRoomId == roomId) || await db.Lessons.AnyAsync(l => l.PhysicalRoomId == roomId))
       throw new BusinessException("Phòng Học Đã Có Lớp Hoặc Lịch Học, Không Thể Xóa · Hãy Bỏ Chọn Đang Sử Dụng");
     db.Rooms.Remove(room);
-    Audit(db, "Room.Delete", "Room", room.Id, room.Name);
     await db.SaveChangesAsync();
   }
 }

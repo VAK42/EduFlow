@@ -91,7 +91,6 @@ public class AttendanceService : BaseService, IAttendanceService
     }
     lesson.Status = LessonStatus.Done;
     lesson.Content = string.IsNullOrWhiteSpace(content) ? null : content!.Trim();
-    Audit(db, "Attendance.Save", "Lesson", lesson.Id, $"{cls.Code} Buổi {lesson.LessonNo}");
     await db.SaveChangesAsync();
   }
 }

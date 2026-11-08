@@ -137,8 +137,6 @@ public class ClassService : BaseService, IClassService
     foreach (var s in lessons) newClass.Lessons.Add(s);
     db.Classes.Add(newClass);
     await db.SaveChangesAsync();
-    Audit(db, "Class.Create", "Class", newClass.Id, newClass.Code);
-    await db.SaveChangesAsync();
     return newClass;
   }
   public async Task<ClassRoom> UpdateAsync(ClassRoom input)
@@ -197,7 +195,6 @@ public class ClassService : BaseService, IClassService
       foreach (var s in lessons) cls.Lessons.Add(s);
       cls.MinStudents = input.MinStudents;
       cls.MaxStudents = input.MaxStudents;
-      Audit(db, "Class.Update", "Class", cls.Id, cls.Code);
       await SaveWithConcurrencyAsync(db, "Lớp Vừa Được Người Khác Cập Nhật · Hãy Tải Lại Rồi Thử Lại");
       tx.Commit();
       return cls;
@@ -231,7 +228,6 @@ public class ClassService : BaseService, IClassService
     }
     cls.MinStudents = input.MinStudents;
     cls.MaxStudents = input.MaxStudents;
-    Audit(db, "Class.Update", "Class", cls.Id, cls.Code);
     await SaveWithConcurrencyAsync(db, "Lớp Vừa Được Người Khác Cập Nhật · Hãy Tải Lại Rồi Thử Lại");
     return cls;
   }
@@ -246,7 +242,6 @@ public class ClassService : BaseService, IClassService
     if (cls.ActiveStudentCount < cls.MinStudents)
       throw new BusinessException($"Lớp Mới Có {cls.ActiveStudentCount} Học Viên, Cần Tối Thiểu {cls.MinStudents} Để Khai Giảng");
     cls.Status = ClassStatus.InProgress;
-    Audit(db, "Class.Start", "Class", cls.Id, cls.Code);
     await SaveWithConcurrencyAsync(db, "Lớp Vừa Được Người Khác Cập Nhật · Hãy Tải Lại Rồi Thử Lại");
   }
   public async Task FinishAsync(int classId)
@@ -262,7 +257,6 @@ public class ClassService : BaseService, IClassService
     var missing = learners.Where(e => e.TotalScore == null).ToList();
     if (missing.Count > 0)
       throw new BusinessException($"Còn {missing.Count} Học Viên Chưa Có Đủ Điểm Quá Trình & Cuối Kỳ");
-    var rule = await SettingsService.ReadPassRuleAsync(db);
     int lessonsDone = cls.Lessons.Count(l => l.Status == LessonStatus.Done);
     var attendedByEnrollment = await db.Attendances
       .Where(a => a.Lesson!.ClassRoomId == cls.Id && a.Lesson.Status == LessonStatus.Done
@@ -273,12 +267,11 @@ public class ClassService : BaseService, IClassService
     foreach (var e in learners)
     {
       double rate = Enrollment.AttendanceRate(attendedByEnrollment.TryGetValue(e.Id, out int attended) ? attended : 0, lessonsDone);
-      e.Status = Enrollment.IsPassed(e.TotalScore!.Value, rate, rule.PassScore, rule.MinAttendancePercent)
+      e.Status = Enrollment.IsPassed(e.TotalScore!.Value, rate, Enrollment.PassScore, Enrollment.MinAttendancePercent)
         ? EnrollmentStatus.Completed
         : EnrollmentStatus.Failed;
     }
     cls.Status = ClassStatus.Finished;
-    Audit(db, "Class.Finish", "Class", cls.Id, $"{cls.Code}: {learners.Count(e => e.Status == EnrollmentStatus.Completed)}/{learners.Count} Đạt");
     await SaveWithConcurrencyAsync(db, "Lớp Vừa Được Người Khác Cập Nhật · Hãy Tải Lại Rồi Thử Lại");
   }
   public async Task CancelAsync(int classId, string reason)
@@ -295,7 +288,6 @@ public class ClassService : BaseService, IClassService
     cls.CancelReason = reason.Trim();
     foreach (var l in cls.Lessons.Where(l => l.Status == LessonStatus.Scheduled))
       l.Status = LessonStatus.Cancelled;
-    Audit(db, "Class.Cancel", "Class", cls.Id, $"{cls.Code}: {cls.CancelReason}");
     await SaveWithConcurrencyAsync(db, "Lớp Vừa Được Người Khác Cập Nhật · Hãy Tải Lại Rồi Thử Lại");
   }
   public async Task DeleteAsync(int classId)
@@ -320,7 +312,6 @@ public class ClassService : BaseService, IClassService
     foreach (var l in cls.Lessons.ToList()) db.Attendances.RemoveRange(l.Attendances);
     db.Lessons.RemoveRange(cls.Lessons);
     db.Classes.Remove(cls);
-    Audit(db, "Class.Delete", "Class", cls.Id, cls.Code);
     try
     {
       await db.SaveChangesAsync();
@@ -344,7 +335,6 @@ public class ClassService : BaseService, IClassService
       throw new BusinessException("Chỉ Hủy Được Buổi Chưa Dạy");
     lesson.Status = LessonStatus.Cancelled;
     lesson.Content = $"Nghỉ: {reason.Trim()}";
-    Audit(db, "Lesson.Cancel", "Lesson", lesson.Id, reason.Trim());
     await db.SaveChangesAsync();
   }
   private static async Task<ClassRoom> LoadForStatusAsync(EduFlowDbContext db, int classId) =>

@@ -65,8 +65,6 @@ public class CourseService : BaseService, ICourseService
     course.Description = input.Description?.Trim();
     course.IsActive = input.IsActive;
     await db.SaveChangesAsync();
-    Audit(db, input.Id == 0 ? "Course.Create" : "Course.Update", "Course", course.Id, course.Code);
-    await db.SaveChangesAsync();
     return course;
   }
   public async Task DeleteAsync(int courseId)
@@ -83,7 +81,6 @@ public class CourseService : BaseService, ICourseService
     foreach (var c in cancelledClasses) db.Lessons.RemoveRange(c.Lessons);
     db.Classes.RemoveRange(cancelledClasses);
     db.Courses.Remove(course);
-    Audit(db, "Course.Delete", "Course", course.Id, course.Code);
     await db.SaveChangesAsync();
   }
 }

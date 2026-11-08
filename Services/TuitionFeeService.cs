@@ -134,7 +134,6 @@ namespace EduFlow.Services
       fee.Amount = input.Amount;
       fee.Note = input.Note?.Trim();
       await db.SaveChangesAsync();
-      Audit(db, input.Id == 0 ? "TuitionFee.Create" : "TuitionFee.Update", "TuitionFee", fee.Id, $"{fee.PeriodText}: {fee.Amount:N0} đ");
       if (fee.ClassRoomId.HasValue)
       {
         var enrollment = await db.Enrollments.FirstOrDefaultAsync(e => e.StudentId == fee.StudentId && e.ClassRoomId == fee.ClassRoomId.Value);
@@ -167,7 +166,6 @@ namespace EduFlow.Services
       var fee = await db.TuitionFees.FindAsync(feeId) ?? throw new BusinessException("Không Tìm Thấy Phiếu Học Phí");
       fee.IsPaid = !fee.IsPaid;
       fee.PaidAt = fee.IsPaid ? DateTime.Now : null;
-      Audit(db, "TuitionFee.TogglePaid", "TuitionFee", fee.Id, fee.IsPaid ? "Đã Đóng" : "Chưa Đóng");
       await db.SaveChangesAsync();
     }
     public async Task DeleteTuitionFeeAsync(int feeId)
@@ -180,7 +178,6 @@ namespace EduFlow.Services
       int? classId = fee.ClassRoomId;
       int studentId = fee.StudentId;
       db.TuitionFees.Remove(fee);
-      Audit(db, "TuitionFee.Delete", "TuitionFee", fee.Id, $"{fee.PeriodText}");
       await db.SaveChangesAsync();
       if (classId.HasValue && !await db.TuitionFees.AnyAsync(f => f.StudentId == studentId && f.ClassRoomId == classId.Value))
       {

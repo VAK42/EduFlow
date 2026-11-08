@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -93,8 +93,6 @@ namespace EduFlow.Services
       salary.CalculateTotal();
       salary.Note = input.Note?.Trim();
       await db.SaveChangesAsync();
-      Audit(db, input.Id == 0 ? "Salary.Create" : "Salary.Update", "Salary", salary.Id, $"Tháng {salary.Month}/{salary.Year}: {salary.TotalSalary:N0} đ");
-      await db.SaveChangesAsync();
       return salary;
     }
     public async Task TogglePaidAsync(int salaryId)
@@ -106,7 +104,6 @@ namespace EduFlow.Services
       var salary = await db.Salaries.FindAsync(salaryId) ?? throw new BusinessException("Không Tìm Thấy Phiếu Lương");
       salary.IsPaid = !salary.IsPaid;
       salary.PaidAt = salary.IsPaid ? DateTime.Now : null;
-      Audit(db, "Salary.TogglePaid", "Salary", salary.Id, salary.IsPaid ? "Đã Chi" : "Chưa Chi");
       await db.SaveChangesAsync();
     }
     public async Task DeleteSalaryAsync(int salaryId)
@@ -117,7 +114,6 @@ namespace EduFlow.Services
       using var db = CreateContext();
       var salary = await db.Salaries.FindAsync(salaryId) ?? throw new BusinessException("Không Tìm Thấy Phiếu Lương");
       db.Salaries.Remove(salary);
-      Audit(db, "Salary.Delete", "Salary", salary.Id, $"Tháng {salary.Month}/{salary.Year}");
       await db.SaveChangesAsync();
     }
   }

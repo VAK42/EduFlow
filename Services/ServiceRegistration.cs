@@ -13,7 +13,6 @@ public static class ServiceRegistration
     services.AddSingleton<ICatalogService, CatalogService>();
     services.AddSingleton<IStudentService, StudentService>();
     services.AddSingleton<IUserService, UserService>();
-    services.AddSingleton<ISettingsService, SettingsService>();
     services.AddSingleton<IScoreService, ScoreService>();
     services.AddSingleton<ICourseService, CourseService>();
     services.AddSingleton<IClassService, ClassService>();

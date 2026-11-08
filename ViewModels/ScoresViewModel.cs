@@ -12,7 +12,6 @@ public partial class ScoresViewModel : ViewModelBase
 {
   private readonly IClassService _classes;
   private readonly IScoreService _scores;
-  private readonly ISettingsService _settings;
   public ObservableCollection<ClassRoom> Classes { get; } = new();
   public ObservableCollection<ScoreRow> Rows { get; } = new();
   [ObservableProperty]
@@ -21,18 +20,16 @@ public partial class ScoresViewModel : ViewModelBase
   [ObservableProperty] private string _ruleText = "";
   public bool CanSave { get; }
   public override string Title => "Bảng Điểm";
-  public ScoresViewModel(IClassService classes, IScoreService scores, ISettingsService settings,
+  public ScoresViewModel(IClassService classes, IScoreService scores,
     UserSession session, IDialogService dialog) : base(dialog)
   {
     _classes = classes;
     _scores = scores;
-    _settings = settings;
     CanSave = session.Can(Permission.EnterScores);
   }
   public override Task LoadAsync() => RunAsync(async () =>
   {
-    var rule = await _settings.GetPassRuleAsync();
-    RuleText = $"Điểm Tổng = 0,4 × Quá Trình + 0,6 × Cuối Kỳ · Làm Tròn 2 Chữ Số · Đạt Khi Điểm Tổng ≥ {rule.PassScore:0.##} & Chuyên Cần ≥ {rule.MinAttendancePercent:0.#}%";
+    RuleText = $"Điểm Tổng = 0,4 × Quá Trình + 0,6 × Cuối Kỳ · Làm Tròn 2 Chữ Số · Đạt Khi Điểm Tổng ≥ {Enrollment.PassScore:0.##} & Chuyên Cần ≥ {Enrollment.MinAttendancePercent:0.#}%";
     Classes.Clear();
     foreach (var c in await _classes.GetMyClassesAsync())
       if (c.Status is ClassStatus.InProgress or ClassStatus.Finished) Classes.Add(c);
@@ -58,7 +55,7 @@ public partial class ScoresViewModel : ViewModelBase
       if (r.FinalScore.Value < 0 || r.FinalScore.Value > 10) throw new BusinessException($"Điểm Cuối Kỳ Của {r.StudentName} Phải Từ 0 Đến 10");
     }
     if (SelectedClass.Status == ClassStatus.Finished
-      && !Dialog.Confirm("Lớp Đã Kết Thúc. Sửa Điểm Sẽ Xét Lại Kết Quả Đạt / Không Đạt & Được Ghi Vào Nhật Ký. Tiếp Tục?"))
+      && !Dialog.Confirm("Lớp Đã Kết Thúc · Sửa Điểm Sẽ Xét Lại Kết Quả Đạt Hoặc Không Đạt · Tiếp Tục?"))
       return;
     await _scores.SaveAsync(SelectedClass.Id, Rows);
     Dialog.ShowInfo($"Đã Lưu Bảng Điểm Lớp {SelectedClass.Code}");

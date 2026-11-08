@@ -9,6 +9,8 @@ namespace EduFlow.Models.Entities
   {
     public const decimal ProcessWeight = 0.4m;
     public const decimal FinalWeight = 0.6m;
+    public const decimal PassScore = 5.0m;
+    public const double MinAttendancePercent = 80.0;
     public int StudentId { get; set; }
     public Student? Student { get; set; }
     public int ClassRoomId { get; set; }
@@ -25,6 +27,7 @@ namespace EduFlow.Models.Entities
     public int AttendedCount => Attendances.Count(a => a.IsAttended);
     public int TotalAttendedSessions => Attendances.Count;
     public static double AttendanceRate(int attended, int total) => total == 0 ? 0 : Math.Round((double)attended / total * 100, 1);
+    public static bool IsPassed(decimal totalScore, double attendanceRate) => totalScore >= PassScore && attendanceRate >= MinAttendancePercent;
     public static bool IsPassed(decimal totalScore, double attendanceRate, decimal passScore, double minAttendancePercent) => totalScore >= passScore && attendanceRate >= minAttendancePercent;
     public void SetScores(decimal? processScore, decimal? finalScore)
     {

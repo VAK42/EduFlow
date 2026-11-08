@@ -27,8 +27,6 @@ public class AuthService : BaseService, IAuthService
     if (!user.IsActive)
       throw new BusinessException("Tài Khoản Đã Bị Khóa · Liên Hệ Quản Lý");
     Session.SignIn(user);
-    Audit(db, "User.Login", "User", user.Id);
-    await db.SaveChangesAsync();
     return user;
   }
   public void Logout() => Session.SignOut();
@@ -42,7 +40,6 @@ public class AuthService : BaseService, IAuthService
     if (!BCrypt.Net.BCrypt.Verify(oldPassword, user.PasswordHash))
       throw new BusinessException("Mật Khẩu Cũ Không Đúng");
     user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
-    Audit(db, "User.ChangePassword", "User", user.Id);
     await db.SaveChangesAsync();
   }
 }

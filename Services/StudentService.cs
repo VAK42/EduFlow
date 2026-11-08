@@ -73,7 +73,6 @@ public class StudentService : BaseService, IStudentService
     using var tx = db.Database.BeginTransaction();
     await db.SaveChangesAsync();
     if (isNew) student.Code = $"{DateTime.Today.Year}{student.Id:D4}";
-    Audit(db, isNew ? "Student.Create" : "Student.Update", "Student", student.Id, student.Code);
     await db.SaveChangesAsync();
     tx.Commit();
     return student;
@@ -87,7 +86,6 @@ public class StudentService : BaseService, IStudentService
     if (!isActive && await db.Enrollments.AnyAsync(e => e.StudentId == studentId && e.Status == EnrollmentStatus.Active))
       throw new BusinessException("Học Viên Đang Theo Học 1 Lớp, Hãy Cho Nghỉ Học Ở Lớp Đó Trước");
     student.IsActive = isActive;
-    Audit(db, isActive ? "Student.Activate" : "Student.Deactivate", "Student", student.Id);
     await db.SaveChangesAsync();
   }
   public async Task DeleteAsync(int studentId)
@@ -111,7 +109,6 @@ public class StudentService : BaseService, IStudentService
     var fees = await db.TuitionFees.Where(f => f.StudentId == studentId).ToListAsync();
     db.TuitionFees.RemoveRange(fees);
     db.Students.Remove(student);
-    Audit(db, "Student.Delete", "Student", student.Id, student.Code);
     await db.SaveChangesAsync();
   }
 }

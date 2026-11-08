@@ -60,8 +60,6 @@ namespace EduFlow.Data
     public DbSet<Lesson> Lessons { get; set; } = null!;
     public DbSet<Enrollment> Enrollments { get; set; } = null!;
     public DbSet<Attendance> Attendances { get; set; } = null!;
-    public DbSet<Setting> Settings { get; set; } = null!;
-    public DbSet<AuditLog> AuditLogs { get; set; } = null!;
     public DbSet<Salary> Salaries { get; set; } = null!;
     public DbSet<TuitionFee> TuitionFees { get; set; } = null!;
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -78,8 +76,6 @@ namespace EduFlow.Data
       modelBuilder.Configurations.Add(new LessonConfiguration());
       modelBuilder.Configurations.Add(new EnrollmentConfiguration());
       modelBuilder.Configurations.Add(new AttendanceConfiguration());
-      modelBuilder.Configurations.Add(new SettingConfiguration());
-      modelBuilder.Configurations.Add(new AuditLogConfiguration());
       modelBuilder.Configurations.Add(new SalaryConfiguration());
       modelBuilder.Configurations.Add(new TuitionFeeConfiguration());
     }
@@ -210,29 +206,6 @@ namespace EduFlow.Data
       HasIndex(x => new { x.LessonId, x.EnrollmentId }).IsUnique();
       HasRequired(x => x.Lesson).WithMany(s => s!.Attendances).HasForeignKey(x => x.LessonId);
       HasRequired(x => x.Enrollment).WithMany(e => e!.Attendances).HasForeignKey(x => x.EnrollmentId);
-    }
-  }
-  public class SettingConfiguration : EntityTypeConfiguration<Setting>
-  {
-    public SettingConfiguration()
-    {
-      ToTable("Settings");
-      HasKey(x => x.Key);
-      Property(x => x.Key).HasMaxLength(50);
-      Property(x => x.Value).HasMaxLength(200).IsRequired();
-      Property(x => x.Description).HasMaxLength(200);
-    }
-  }
-  public class AuditLogConfiguration : EntityTypeConfiguration<AuditLog>
-  {
-    public AuditLogConfiguration()
-    {
-      ToTable("AuditLogs");
-      Property(x => x.Action).HasMaxLength(50).IsRequired();
-      Property(x => x.Entity).HasMaxLength(50).IsRequired();
-      Property(x => x.Detail).HasMaxLength(1000);
-      HasOptional(x => x.User).WithMany().HasForeignKey(x => x.UserId);
-      HasIndex(x => x.CreatedAt);
     }
   }
   public class SalaryConfiguration : EntityTypeConfiguration<Salary>

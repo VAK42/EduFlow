@@ -212,8 +212,6 @@
     <Compile Include="Models\Lesson.cs" />
     <Compile Include="Models\Enrollment.cs" />
     <Compile Include="Models\Attendance.cs" />
-    <Compile Include="Models\Setting.cs" />
-    <Compile Include="Models\AuditLog.cs" />
     <Compile Include="Models\Salary.cs" />
     <Compile Include="Models\TuitionFee.cs" />
     <Compile Include="Models\Dtos.cs" />
@@ -242,7 +240,6 @@
     <Compile Include="Services\ScheduleCalculator.cs" />
     <Compile Include="Services\ScoreService.cs" />
     <Compile Include="Services\ServiceRegistration.cs" />
-    <Compile Include="Services\SettingsService.cs" />
     <Compile Include="Services\StudentService.cs" />
     <Compile Include="Services\UserService.cs" />
     <Compile Include="Services\SalaryService.cs" />

@@ -87,8 +87,6 @@ public class UserService : BaseService, IUserService
     if (!string.IsNullOrWhiteSpace(newPassword))
       user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
     await db.SaveChangesAsync();
-    Audit(db, input.Id == 0 ? "User.Create" : "User.Update", "User", user.Id, $"{user.Username} ({user.Role})");
-    await db.SaveChangesAsync();
     return user;
   }
   public async Task SetActiveAsync(int userId, bool isActive)
@@ -103,7 +101,6 @@ public class UserService : BaseService, IUserService
     if (user.Role == UserRole.Admin)
       throw new BusinessException("Không Thể Khóa Tài Khoản Quản Trị Hệ Thống");
     user.IsActive = isActive;
-    Audit(db, isActive ? "User.Unlock" : "User.Lock", "User", user.Id, user.Username);
     await db.SaveChangesAsync();
   }
   public async Task DeleteAsync(int userId)
@@ -123,10 +120,7 @@ public class UserService : BaseService, IUserService
     foreach (var c in classes) c.TeacherId = me.Id;
     var lessons = await db.Lessons.Where(l => l.TeacherId == userId).ToListAsync();
     foreach (var l in lessons) l.TeacherId = me.Id;
-    var auditLogs = await db.AuditLogs.Where(a => a.UserId == userId).ToListAsync();
-    foreach (var log in auditLogs) log.UserId = null;
     db.Users.Remove(user);
-    Audit(db, "User.Delete", "User", user.Id, user.Username);
     await db.SaveChangesAsync();
   }
 }

@@ -23,7 +23,6 @@ public class ScoreService : BaseService, IScoreService
       ?? throw new BusinessException("Không Tìm Thấy Lớp");
     if (user.IsTeacher && cls.TeacherId != user.Id && !cls.Lessons.Any(l => l.TeacherId == user.Id))
       throw new BusinessException("Bạn Chỉ Xem Được Điểm Của Lớp Mình Dạy");
-    var rule = await SettingsService.ReadPassRuleAsync(db);
     int lessonsDone = cls.Lessons.Count(l => l.Status == LessonStatus.Done);
     var enrollments = await db.Enrollments.AsNoTracking()
       .Include(e => e.Student)
@@ -39,7 +38,7 @@ public class ScoreService : BaseService, IScoreService
         EnrollmentStatus.Completed => "Đạt",
         EnrollmentStatus.Failed => "Không Đạt",
         _ when e.TotalScore is null => "Chưa Đủ Điểm",
-        _ => Enrollment.IsPassed(e.TotalScore.Value, rate, rule.PassScore, rule.MinAttendancePercent)
+        _ => Enrollment.IsPassed(e.TotalScore.Value, rate, Enrollment.PassScore, Enrollment.MinAttendancePercent)
           ? "Dự Kiến Đạt" : "Dự Kiến Không Đạt"
       };
       return new ScoreRow
@@ -53,8 +52,8 @@ public class ScoreService : BaseService, IScoreService
         TotalScore = e.TotalScore,
         AttendanceRate = rate,
         ResultText = result,
-        PassScore = rule.PassScore,
-        MinAttendancePercent = rule.MinAttendancePercent
+        PassScore = Enrollment.PassScore,
+        MinAttendancePercent = Enrollment.MinAttendancePercent
       };
     }).ToList();
   }
@@ -77,7 +76,6 @@ public class ScoreService : BaseService, IScoreService
       .Include(e => e.Attendances.Select(a => a.Lesson))
       .Where(e => e.ClassRoomId == classId && e.Status != EnrollmentStatus.Dropped)
       .ToDictionaryAsync(e => e.Id);
-    var rule = await SettingsService.ReadPassRuleAsync(db);
     int lessonsDone = cls.Lessons.Count(l => l.Status == LessonStatus.Done);
     foreach (var row in rowList)
     {
@@ -98,11 +96,10 @@ public class ScoreService : BaseService, IScoreService
       {
         int attended = e.Attendances.Count(a => a.Lesson!.Status == LessonStatus.Done && a.IsAttended);
         double rate = Enrollment.AttendanceRate(attended, lessonsDone);
-        e.Status = Enrollment.IsPassed(total, rate, rule.PassScore, rule.MinAttendancePercent)
+        e.Status = Enrollment.IsPassed(total, rate, Enrollment.PassScore, Enrollment.MinAttendancePercent)
           ? EnrollmentStatus.Completed : EnrollmentStatus.Failed;
       }
     }
-    Audit(db, cls.Status == ClassStatus.Finished ? "Score.EditAfterFinish" : "Score.Save", "Class", cls.Id, cls.Code);
     await SaveWithConcurrencyAsync(db, "Điểm Vừa Được Người Khác Cập Nhật · Hãy Tải Lại Rồi Nhập Lại");
   }
 }

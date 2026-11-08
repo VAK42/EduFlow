@@ -158,21 +158,6 @@ namespace EduFlow.Services
             FOREIGN KEY (LessonId) REFERENCES Lessons(Id),
             FOREIGN KEY (EnrollmentId) REFERENCES Enrollments(Id)
           );",
-          @"CREATE TABLE IF NOT EXISTS Settings (
-            Key TEXT PRIMARY KEY,
-            Value TEXT NOT NULL,
-            Description TEXT
-          );",
-          @"CREATE TABLE IF NOT EXISTS AuditLogs (
-            Id INTEGER PRIMARY KEY AUTOINCREMENT,
-            CreatedAt TEXT NOT NULL,
-            UserId INTEGER,
-            Action TEXT NOT NULL,
-            Entity TEXT NOT NULL,
-            EntityId INTEGER,
-            Detail TEXT,
-            FOREIGN KEY (UserId) REFERENCES Users(Id)
-          );",
           @"CREATE TABLE IF NOT EXISTS Salaries (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
             CreatedAt TEXT NOT NULL,
@@ -208,7 +193,6 @@ namespace EduFlow.Services
           "CREATE INDEX IF NOT EXISTS idx_lessons_date ON Lessons(Date);",
           "CREATE UNIQUE INDEX IF NOT EXISTS idx_enrollments_student_class ON Enrollments(StudentId, ClassRoomId);",
           "CREATE UNIQUE INDEX IF NOT EXISTS idx_attendances_lesson_enrollment ON Attendances(LessonId, EnrollmentId);",
-          "CREATE INDEX IF NOT EXISTS idx_auditlogs_createdat ON AuditLogs(CreatedAt);",
           "CREATE INDEX IF NOT EXISTS idx_salaries_user_month_year ON Salaries(UserId, Month, Year);",
           "CREATE INDEX IF NOT EXISTS idx_tuitionfees_student_month_year ON TuitionFees(StudentId, Month, Year);",
           "CREATE INDEX IF NOT EXISTS idx_tuitionfees_feetype ON TuitionFees(FeeType);",
@@ -231,10 +215,6 @@ namespace EduFlow.Services
     }
     private static async Task SeedAsync(EduFlowDbContext db)
     {
-      db.Settings.AddRange(new[] {
-        new Setting { Key = Setting.CenterName, Value = "Trung Tâm Đào Tạo EduFlow", Description = "Tên In Trên Phiếu Thu" },
-        new Setting { Key = Setting.PassScore, Value = "5", Description = "Điểm Tổng Tối Thiểu Để Đạt" },
-        new Setting { Key = Setting.MinAttendancePercent, Value = "80", Description = "Tỉ Lệ Phần Trăm Chuyên Cần Tối Thiểu" } });
       string hash = BCrypt.Net.BCrypt.HashPassword("123456");
       var admin = new User { Username = "admin", FullName = "Admin", Phone = "0901234567", Email = "admin@eduflow.vn", Role = UserRole.Admin, PasswordHash = hash, IsActive = true };
       db.Users.Add(admin);
