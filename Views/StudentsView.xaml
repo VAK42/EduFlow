@@ -1,0 +1,172 @@
+<UserControl x:Class="EduFlow.WPF.Views.StudentsView"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="Auto" />
+    </Grid.ColumnDefinitions>
+    <materialDesign:Card Style="{StaticResource PageCard}" Margin="0,0,12,0">
+      <DockPanel>
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,16">
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBox Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ToolbarTextBox}"
+              materialDesign:HintAssist.Hint="Tìm Học Viên..." Width="220" Margin="0,0,8,0" VerticalAlignment="Center" />
+            <Button Style="{StaticResource MaterialDesignIconButton}" Command="{Binding NewCommand}" ToolTip="Thêm Học Viên"
+              Visibility="{Binding CanEdit, Converter={StaticResource BoolToVisibility}}">
+              <materialDesign:PackIcon Kind="AccountPlus" Foreground="{StaticResource PrimaryBrush}" Width="24" Height="24" />
+            </Button>
+          </StackPanel>
+          <TextBlock Style="{StaticResource SectionTitle}" VerticalAlignment="Center">
+            Học Viên (<Run Text="{Binding Students.Count, Mode=OneWay}" />)
+          </TextBlock>
+        </DockPanel>
+        <DataGrid ItemsSource="{Binding Students}" SelectedItem="{Binding SelectedStudent}" VerticalContentAlignment="Center">
+          <DataGrid.Columns>
+            <DataGridTemplateColumn Header="Học Viên" Width="1.8*">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Style="{StaticResource Avatar}" Margin="0,0,10,0" VerticalAlignment="Center">
+                      <materialDesign:PackIcon Kind="Account" Foreground="{StaticResource PrimaryBrush}" Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                      <TextBlock Text="{Binding FullName}" FontWeight="Normal" />
+                      <TextBlock Text="{Binding Code}" Style="{StaticResource MutedText}" />
+                    </StackPanel>
+                  </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="Giới Tính" Width="80">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock VerticalAlignment="Center">
+                    <TextBlock.Style>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Text" Value="Nữ" />
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding IsMale}" Value="True">
+                            <Setter Property="Text" Value="Nam" />
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </TextBlock.Style>
+                  </TextBlock>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="Ngày Sinh" Width="105">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding DateOfBirth, StringFormat=dd/MM/yyyy}" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="Số Điện Thoại" Width="120">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Phone}" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="Email" Width="1.4*">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Email}" VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="Địa Chỉ" Width="1.4*">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Address}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="Ghi Chú" Width="*">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Note}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Style="{StaticResource MutedText}" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="Trạng Thái" Width="110">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <Border Style="{StaticResource Badge}" VerticalAlignment="Center" DataContext="{Binding IsActive}">
+                    <TextBlock FontSize="12" FontWeight="Normal" Foreground="{Binding Converter={StaticResource StatusForeground}}">
+                      <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                          <Setter Property="Text" Value="Ngừng Học" />
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding}" Value="True">
+                              <Setter Property="Text" Value="Hoạt Động" />
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </TextBlock.Style>
+                    </TextBlock>
+                  </Border>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="Thao Tác" Width="130"
+              Visibility="{Binding DataContext.CanEdit, RelativeSource={RelativeSource AncestorType=DataGrid}, Converter={StaticResource BoolToVisibility}}">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Button Style="{StaticResource MaterialDesignIconButton}" Width="28" Height="28"
+                      Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                      CommandParameter="{Binding}" ToolTip="Chỉnh Sửa">
+                      <materialDesign:PackIcon Kind="PencilOutline" Width="16" Height="16" Foreground="{StaticResource PrimaryBrush}" />
+                    </Button>
+                    <Button Style="{StaticResource MaterialDesignIconButton}" Width="28" Height="28" Margin="4,0,0,0"
+                      Command="{Binding DataContext.ToggleActiveCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                      CommandParameter="{Binding}" ToolTip="Ngừng Học / Kích Hoạt Lại">
+                      <materialDesign:PackIcon Kind="LockOutline" Width="16" Height="16" Foreground="{StaticResource WarningBrush}" />
+                    </Button>
+                    <Button Style="{StaticResource MaterialDesignIconButton}" Width="28" Height="28" Margin="4,0,0,0"
+                      Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                      CommandParameter="{Binding}" ToolTip="Xóa">
+                      <materialDesign:PackIcon Kind="DeleteOutline" Width="16" Height="16" Foreground="{StaticResource DangerBrush}" />
+                    </Button>
+                  </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+          </DataGrid.Columns>
+        </DataGrid>
+      </DockPanel>
+    </materialDesign:Card>
+    <materialDesign:Card Grid.Column="1" Style="{StaticResource PageCard}" Width="350"
+      Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}">
+      <StackPanel>
+        <DockPanel Margin="0,0,0,16">
+          <Button DockPanel.Dock="Right" Style="{StaticResource MaterialDesignIconButton}" Command="{Binding CancelEditCommand}" ToolTip="Đóng">
+            <materialDesign:PackIcon Kind="Close" Foreground="{StaticResource MutedBrush}" Width="20" Height="20" />
+          </Button>
+          <TextBlock Text="{Binding FormTitle}" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+        </DockPanel>
+        <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Họ &amp; Tên *" Margin="0,0,0,20" />
+        <DatePicker SelectedDate="{Binding DateOfBirth}" materialDesign:HintAssist.Hint="Ngày Sinh *" Margin="0,0,0,20" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+          <TextBlock Text="Giới Tính *" VerticalAlignment="Center" Margin="0,0,16,0" Style="{StaticResource MutedText}" />
+          <RadioButton Content="Nam" IsChecked="{Binding IsMale}" GroupName="StudentGender" Margin="0,0,16,0" />
+          <RadioButton Content="Nữ" IsChecked="{Binding IsMale, Converter={StaticResource InverseBool}}" GroupName="StudentGender" />
+        </StackPanel>
+        <TextBox Text="{Binding Phone}" materialDesign:HintAssist.Hint="Số Điện Thoại *" Margin="0,0,0,20"
+          materialDesign:TextFieldAssist.HasLeadingIcon="True" materialDesign:TextFieldAssist.LeadingIcon="Phone" />
+        <TextBox Text="{Binding Email}" materialDesign:HintAssist.Hint="Email *" Margin="0,0,0,20"
+          materialDesign:TextFieldAssist.HasLeadingIcon="True" materialDesign:TextFieldAssist.LeadingIcon="EmailOutline" />
+        <TextBox Text="{Binding Address}" materialDesign:HintAssist.Hint="Địa Chỉ *" Margin="0,0,0,20"
+          materialDesign:TextFieldAssist.HasLeadingIcon="True" materialDesign:TextFieldAssist.LeadingIcon="MapMarkerOutline" />
+        <TextBox Text="{Binding Note}" materialDesign:HintAssist.Hint="Ghi Chú" Margin="0,0,0,24" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="60" />
+        <Button Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" ToolTip="Lưu" HorizontalAlignment="Right">
+          <materialDesign:PackIcon Kind="ContentSave" Width="20" Height="20" />
+        </Button>
+      </StackPanel>
+    </materialDesign:Card>
+  </Grid>
+</UserControl>

@@ -1,0 +1,102 @@
+<UserControl x:Class="EduFlow.WPF.Views.ScheduleView"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+  <DockPanel>
+    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,16">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+        <DatePicker x:Name="FilterDatePicker" SelectedDate="{Binding FilterDate}" Style="{StaticResource ToolbarDatePicker}"
+          materialDesign:HintAssist.Hint="Tuần Học" Width="145" Margin="0,0,6,0" VerticalAlignment="Center" />
+        <Button Style="{StaticResource MaterialDesignIconButton}" Command="{Binding ClearFilterDateCommand}" ToolTip="Về Tuần Hiện Tại" Margin="0">
+          <materialDesign:PackIcon Kind="CalendarToday" Foreground="{StaticResource MutedBrush}" Width="20" Height="20" />
+        </Button>
+      </StackPanel>
+      <StackPanel>
+        <TextBlock Text="{Binding WeekText}" Style="{StaticResource PageTitle}" FontSize="20" />
+        <TextBlock Style="{StaticResource MutedText}" Margin="0,2,0,0">
+          <Run Text="{Binding SessionCount, Mode=OneWay}" /> Buổi Học Trong Tuần · Màu Thẻ Theo Nhóm Khóa Học
+        </TextBlock>
+      </StackPanel>
+    </DockPanel>
+    <ItemsControl ItemsSource="{Binding Days}">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <UniformGrid Rows="1" Columns="7" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Border Margin="0,0,10,0" CornerRadius="12" Background="White" BorderThickness="1">
+            <Border.Style>
+              <Style TargetType="Border">
+                <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding IsToday}" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </Border.Style>
+            <DockPanel>
+              <Border DockPanel.Dock="Top" Padding="12,10" CornerRadius="12,12,0,0">
+                <Border.Style>
+                  <Style TargetType="Border">
+                    <Setter Property="Background" Value="#F8FAFC" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding IsToday}" Value="True">
+                        <Setter Property="Background" Value="{StaticResource PrimarySoftBrush}" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </Border.Style>
+                <StackPanel>
+                  <TextBlock Text="{Binding DayName}" FontWeight="Normal" />
+                  <TextBlock Text="{Binding DateText}" Style="{StaticResource MutedText}" />
+                </StackPanel>
+              </Border>
+              <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Cards}" Margin="8">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border Margin="0,0,0,8" CornerRadius="8" Background="#F8FAFC" BorderThickness="1"
+                        BorderBrush="{StaticResource BorderBrush}" Padding="10,8" Cursor="Hand">
+                        <Border.InputBindings>
+                          <MouseBinding MouseAction="LeftClick"
+                            Command="{Binding DataContext.OpenAttendanceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}" />
+                        </Border.InputBindings>
+                        <Border.ToolTip>
+                          <StackPanel>
+                            <TextBlock Text="{Binding CourseName}" FontWeight="Normal" />
+                            <TextBlock Text="{Binding TeacherName}" />
+                            <TextBlock Text="{Binding Status, Converter={StaticResource EnumText}}" />
+                          </StackPanel>
+                        </Border.ToolTip>
+                        <StackPanel>
+                          <TextBlock Text="{Binding TimeText}" FontSize="11" FontWeight="Normal" Foreground="{Binding AccentColor}" Margin="0,0,0,4" />
+                          <TextBlock Text="{Binding CourseName}" FontSize="15" FontWeight="Normal" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" />
+                          <TextBlock Text="{Binding CourseCode}" FontSize="12" Foreground="{StaticResource MutedBrush}" Margin="0,2,0,0" />
+                          <Border Style="{StaticResource Badge}" HorizontalAlignment="Left" Margin="0,4,0,0" Background="{StaticResource PrimarySoftBrush}">
+                            <TextBlock Text="{Binding CategoryName}" FontSize="11" Foreground="{Binding AccentColor}" FontWeight="Normal" />
+                          </Border>
+                          <StackPanel Orientation="Horizontal" Margin="0,6,0,0" VerticalAlignment="Center">
+                            <materialDesign:PackIcon Kind="AccountTie" Width="14" Height="14" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding TeacherName}" FontSize="12" Foreground="{StaticResource MutedBrush}" Margin="6,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                          </StackPanel>
+                          <StackPanel Orientation="Horizontal" Margin="0,4,0,0" VerticalAlignment="Center">
+                            <materialDesign:PackIcon Kind="DoorOpen" Width="14" Height="14" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding RoomName}" FontSize="12" Foreground="{StaticResource MutedBrush}" Margin="6,0,0,0" VerticalAlignment="Center" />
+                          </StackPanel>
+                        </StackPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </DockPanel>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </DockPanel>
+</UserControl>

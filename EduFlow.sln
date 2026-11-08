@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EduFlow", "EduFlow.csproj", "{26477C7B-288C-4B8F-8581-BE970B6A5841}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{26477C7B-288C-4B8F-8581-BE970B6A5841}.Debug|x64.ActiveCfg = Debug|x64
+		{26477C7B-288C-4B8F-8581-BE970B6A5841}.Debug|x64.Build.0 = Debug|x64
+		{26477C7B-288C-4B8F-8581-BE970B6A5841}.Release|x64.ActiveCfg = Release|x64
+		{26477C7B-288C-4B8F-8581-BE970B6A5841}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E2BC4CFD-9635-4DB6-88AD-90FE17285482}
+	EndGlobalSection
+EndGlobal

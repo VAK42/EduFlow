@@ -1,0 +1,253 @@
+<UserControl x:Class="EduFlow.WPF.Views.ClassesView"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+  <UserControl.Resources>
+    <Style x:Key="DayChip" TargetType="CheckBox" BasedOn="{StaticResource MaterialDesignFilterChipPrimaryCheckBox}">
+      <Setter Property="Margin" Value="0,6,6,0" />
+    </Style>
+  </UserControl.Resources>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="Auto" />
+    </Grid.ColumnDefinitions>
+    <Grid Margin="0,0,12,0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="3*" />
+        <RowDefinition Height="16" />
+        <RowDefinition Height="2*" />
+      </Grid.RowDefinitions>
+      <materialDesign:Card Style="{StaticResource PageCard}">
+        <DockPanel>
+          <DockPanel DockPanel.Dock="Top" Margin="0,0,0,14">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Visibility="{Binding CanManage, Converter={StaticResource BoolToVisibility}}">
+              <Button Style="{StaticResource MaterialDesignIconButton}" Command="{Binding StartClassCommand}" ToolTip="Khai Giảng Lớp">
+                <materialDesign:PackIcon Kind="PlayCircleOutline" Foreground="{StaticResource PrimaryBrush}" Width="24" Height="24" />
+              </Button>
+              <Button Style="{StaticResource MaterialDesignIconButton}" Command="{Binding FinishClassCommand}" ToolTip="Kết Thúc Lớp">
+                <materialDesign:PackIcon Kind="FlagCheckered" Foreground="#10B981" Width="24" Height="24" />
+              </Button>
+              <Button Style="{StaticResource MaterialDesignIconButton}" Command="{Binding CancelClassCommand}" ToolTip="Hủy Lớp"
+                Visibility="{Binding CanCancel, Converter={StaticResource BoolToVisibility}}">
+                <materialDesign:PackIcon Kind="Cancel" Foreground="{StaticResource WarningBrush}" Width="24" Height="24" />
+              </Button>
+              <Button Style="{StaticResource MaterialDesignIconButton}" Command="{Binding DeleteClassCommand}" ToolTip="Xóa Lớp">
+                <materialDesign:PackIcon Kind="DeleteOutline" Foreground="{StaticResource DangerBrush}" Width="24" Height="24" />
+              </Button>
+              <Button Style="{StaticResource MaterialDesignIconButton}" Command="{Binding NewClassCommand}" ToolTip="Mở Lớp Mới">
+                <materialDesign:PackIcon Kind="Plus" Foreground="{StaticResource PrimaryBrush}" Width="24" Height="24" />
+              </Button>
+            </StackPanel>
+            <TextBlock Style="{StaticResource SectionTitle}" VerticalAlignment="Center">
+              Các Lớp Học · <Run Text="{Binding Classes.Count, Mode=OneWay}" /> Lớp
+            </TextBlock>
+          </DockPanel>
+          <DataGrid ItemsSource="{Binding Classes}" SelectedItem="{Binding SelectedClass}" VerticalContentAlignment="Center">
+            <DataGrid.Columns>
+              <DataGridTemplateColumn Header="Lớp" Width="1.3*">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <StackPanel VerticalAlignment="Center">
+                      <TextBlock Text="{Binding Code}" FontWeight="Normal" />
+                      <TextBlock Text="{Binding Course.Name}" Style="{StaticResource MutedText}" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="Giáo Viên · Phòng" Width="*">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <StackPanel VerticalAlignment="Center">
+                      <TextBlock Text="{Binding Teacher.FullName}" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Text="{Binding PhysicalRoom.Name, StringFormat=Phòng {0}}" Style="{StaticResource MutedText}"
+                        TextTrimming="CharacterEllipsis" ToolTip="{Binding PhysicalRoom.Name}" />
+                    </StackPanel>
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="Lịch Học" Width="1.2*">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <StackPanel VerticalAlignment="Center">
+                      <TextBlock Text="{Binding ScheduleText}" TextWrapping="Wrap" />
+                      <TextBlock Text="{Binding StartDate, StringFormat=Khai Giảng {0:dd/MM/yyyy}}" Style="{StaticResource MutedText}" />
+                    </StackPanel>
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="Sĩ Số" Width="110">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <StackPanel VerticalAlignment="Center">
+                      <TextBlock FontWeight="Normal"><Run Text="{Binding ActiveStudentCount, Mode=OneWay}" />/<Run Text="{Binding MaxStudents, Mode=OneWay}" /></TextBlock>
+                      <TextBlock Text="{Binding MinStudents, StringFormat=Tối Thiểu {0}}" Style="{StaticResource MutedText}" />
+                      <ProgressBar Value="{Binding ActiveStudentCount, Mode=OneWay}" Maximum="{Binding MaxStudents}" Height="6" Margin="0,4,0,0" />
+                    </StackPanel>
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="Trạng Thái" Width="130">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <Border Style="{StaticResource Badge}" VerticalAlignment="Center" DataContext="{Binding Status}">
+                      <TextBlock Style="{StaticResource BadgeText}" />
+                    </Border>
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="Thao Tác" Width="90"
+                Visibility="{Binding DataContext.CanManage, RelativeSource={RelativeSource AncestorType=DataGrid}, Converter={StaticResource BoolToVisibility}}">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                      <Button Style="{StaticResource MaterialDesignIconButton}" Width="28" Height="28"
+                        Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                        CommandParameter="{Binding}" ToolTip="Chỉnh Sửa">
+                        <materialDesign:PackIcon Kind="PencilOutline" Width="16" Height="16" Foreground="{StaticResource PrimaryBrush}" />
+                      </Button>
+                      <Button Style="{StaticResource MaterialDesignIconButton}" Width="28" Height="28" Margin="4,0,0,0"
+                        Command="{Binding DataContext.DeleteClassCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                        CommandParameter="{Binding}" ToolTip="Xóa">
+                        <materialDesign:PackIcon Kind="DeleteOutline" Width="16" Height="16" Foreground="{StaticResource DangerBrush}" />
+                      </Button>
+                    </StackPanel>
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+      </materialDesign:Card>
+      <materialDesign:Card Grid.Row="2" Style="{StaticResource PageCard}">
+        <DockPanel>
+          <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+            <Button DockPanel.Dock="Right" Style="{StaticResource MaterialDesignIconButton}" Command="{Binding CancelLessonCommand}" ToolTip="Cho Nghỉ Buổi Đã Chọn"
+              Visibility="{Binding CanManage, Converter={StaticResource BoolToVisibility}}">
+              <materialDesign:PackIcon Kind="CalendarRemove" Foreground="{StaticResource DangerBrush}" Width="24" Height="24" />
+            </Button>
+            <TextBlock Style="{StaticResource SectionTitle}" VerticalAlignment="Center">
+              Lịch Buổi Học <Run Text="{Binding SelectedClass.Code, Mode=OneWay}" />
+            </TextBlock>
+          </DockPanel>
+          <TextBlock DockPanel.Dock="Top" Text="Chọn 1 Lớp Ở Bảng Trên Để Xem Lịch Từng Buổi" Style="{StaticResource MutedText}"
+            Visibility="{Binding SelectedClass, Converter={StaticResource NullToVisible}}" Margin="0,0,0,8" />
+          <DataGrid ItemsSource="{Binding Lessons}" SelectedItem="{Binding SelectedLesson}" VerticalContentAlignment="Center">
+            <DataGrid.Columns>
+              <DataGridTemplateColumn Header="Buổi" Width="55">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding LessonNo}" VerticalAlignment="Center" />
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="Ngày" Width="1.2*">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Date, StringFormat=dddd dd/MM/yyyy}" VerticalAlignment="Center" />
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="Thời Gian" Width="110">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <TextBlock VerticalAlignment="Center">
+                      <Run Text="{Binding StartTime, StringFormat={}{0:hh\\:mm}}" /> - <Run Text="{Binding EndTime, StringFormat={}{0:hh\\:mm}}" />
+                    </TextBlock>
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="Phòng" Width="*">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding PhysicalRoom.Name}" VerticalAlignment="Center" />
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="Giáo Viên" Width="*">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Teacher.FullName}" VerticalAlignment="Center" />
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="Nội Dung" Width="1.5*">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Content, TargetNullValue=Chưa Cập Nhật}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Style="{StaticResource MutedText}" />
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="Trạng Thái" Width="120">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <Border Style="{StaticResource Badge}" VerticalAlignment="Center" DataContext="{Binding Status}">
+                      <TextBlock Style="{StaticResource BadgeText}" />
+                    </Border>
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+      </materialDesign:Card>
+    </Grid>
+    <materialDesign:Card Grid.Column="1" Style="{StaticResource PageCard}" Width="360"
+      Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}">
+      <DockPanel>
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,16">
+          <Button DockPanel.Dock="Right" Style="{StaticResource MaterialDesignIconButton}" Command="{Binding CancelEditCommand}" ToolTip="Đóng">
+            <materialDesign:PackIcon Kind="Close" Foreground="{StaticResource MutedBrush}" Width="20" Height="20" />
+          </Button>
+          <TextBlock Text="{Binding FormTitle}" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+        </DockPanel>
+        <StackPanel DockPanel.Dock="Bottom" Margin="0,16,0,0">
+          <Button Style="{StaticResource PrimaryButton}" Command="{Binding CreateClassCommand}" ToolTip="Lưu Lớp Học" HorizontalAlignment="Right">
+            <materialDesign:PackIcon Kind="ContentSave" Width="20" Height="20" />
+          </Button>
+        </StackPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <StackPanel Margin="0,0,6,0">
+            <ComboBox ItemsSource="{Binding Courses}" SelectedItem="{Binding NewCourse}" DisplayMemberPath="Name" materialDesign:HintAssist.Hint="Khóa Học *" Margin="0,0,0,18" />
+            <ComboBox ItemsSource="{Binding Teachers}" SelectedItem="{Binding NewTeacher}" DisplayMemberPath="FullName" materialDesign:HintAssist.Hint="Giáo Viên *" Margin="0,0,0,18" />
+            <ComboBox ItemsSource="{Binding Rooms}" SelectedItem="{Binding NewRoom}" materialDesign:HintAssist.Hint="Phòng Học *" Margin="0,0,0,18" />
+            <DatePicker SelectedDate="{Binding NewStartDate}" materialDesign:HintAssist.Hint="Ngày Khai Giảng *" Margin="0,0,0,18" />
+            <TextBlock Text="Ngày Học Trong Tuần *" Style="{StaticResource GroupLabel}" Margin="0,0,0,6" />
+            <WrapPanel Margin="0,0,0,18">
+              <CheckBox Content="T2" IsChecked="{Binding Mon}" Style="{StaticResource DayChip}" />
+              <CheckBox Content="T3" IsChecked="{Binding Tue}" Style="{StaticResource DayChip}" />
+              <CheckBox Content="T4" IsChecked="{Binding Wed}" Style="{StaticResource DayChip}" />
+              <CheckBox Content="T5" IsChecked="{Binding Thu}" Style="{StaticResource DayChip}" />
+              <CheckBox Content="T6" IsChecked="{Binding Fri}" Style="{StaticResource DayChip}" />
+              <CheckBox Content="T7" IsChecked="{Binding Sat}" Style="{StaticResource DayChip}" />
+              <CheckBox Content="CN" IsChecked="{Binding Sun}" Style="{StaticResource DayChip}" />
+            </WrapPanel>
+            <Grid Margin="0,0,0,18">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="18" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <TextBox Text="{Binding NewStartTime}" materialDesign:HintAssist.Hint="Giờ Bắt Đầu *" />
+              <TextBox Grid.Column="2" Text="{Binding NewEndTime}" materialDesign:HintAssist.Hint="Giờ Kết Thúc *" />
+              <TextBox Grid.Row="2" Text="{Binding NewMinStudents}" materialDesign:HintAssist.Hint="Sĩ Số Tối Thiểu *" />
+              <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding NewMaxStudents}" materialDesign:HintAssist.Hint="Sĩ Số Tối Đa *" />
+            </Grid>
+            <Border Background="{StaticResource PrimarySoftBrush}" CornerRadius="8" Padding="12">
+              <StackPanel Orientation="Horizontal">
+                <materialDesign:PackIcon Kind="CalendarMonth" Foreground="{StaticResource PrimaryBrush}" VerticalAlignment="Center" />
+                <TextBlock Text="Hệ Thống Tự Sinh Lịch Theo Số Buổi Của Khóa &amp; Chặn Trùng Phòng, Trùng Giáo Viên"
+                  TextWrapping="Wrap" FontSize="12" Foreground="{StaticResource PrimaryBrush}" Margin="8,0,0,0" Width="270" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+      </DockPanel>
+    </materialDesign:Card>
+  </Grid>
+</UserControl>
